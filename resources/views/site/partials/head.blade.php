@@ -2,8 +2,8 @@
 <meta http-equiv="x-ua-compatible" content="ie=edge">
 <title>@yield('title')</title>
 <meta name="author" content="Frutin">
-<meta name="description" content="Frutin - Organic and Healthy Food HTML Template">
-<meta name="keywords" content="Frutin - Organic and Healthy Food HTML Template">
+<meta name="description" content="@yield('description')">
+<meta name="keywords" content="@yield('description')">
 <meta name="robots" content="INDEX,FOLLOW">
 <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
 
