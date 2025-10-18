@@ -69,18 +69,11 @@ class FrontController extends Controller
     }
 
     public function homePage() {
-
-        $whyBlock = WhyUs::query()->with(['image'])->first();
-
-
-
         //start
         $about = About::getDataForEdit(1);
         $banners = Banner::query()->whereNull('type')->with(['image'])->latest()->get();
         $categories = Category::query()->with(['image'])
-            ->with(['products' => function ($query) {
-                $query->where('status', 1)->latest()->take(6);
-            }])
+            ->with(['products'])
             ->where('show_home_page', 1)->orderBy('sort_order')
             ->get();
         $categories->each(function ($cat) {
@@ -102,7 +95,7 @@ class FrontController extends Controller
             ->latest()->limit(5)->get();
 
         return view('site.home', compact('about' , 'blogs', 'categories',
-            'banners', 'whyBlock', 'categoriesSpecial', 'feedbacks', 'messages'));
+            'banners', 'categoriesSpecial', 'feedbacks', 'messages'));
     }
 
     public function getProductList(Request $request, $slug = null) {
