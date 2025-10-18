@@ -148,7 +148,13 @@
         </style>
 
         <style>
+            @media (max-width: 991.98px) {
 
+                .header-top-wrap {
+                    padding-top: .5rem!important;
+                    padding-bottom: .5rem!important;
+                }
+            }
 
         </style>
 
@@ -157,7 +163,7 @@
 
                 <!-- ROW TRÊN: LOGO (trái) + HEADER BUTTON (phải) -->
 
-                <div class="row align-items-center py-2 justify-content-center header-top-wrap " >
+                <div class="row align-items-center  justify-content-center header-top-wrap " >
                     <!-- Logo trái -->
                     <div class="col-6 col-lg-3 order-1 d-flex align-items-center">
                         <div class="header-logo">
@@ -253,7 +259,8 @@
                             <li class="woocommerce-mini-cart-item mini_cart_item" ng-repeat="item in cart.items">
                                 <a href="javascript:void(0)" class="remove remove_from_cart_button"><i
                                         class="far fa-times" ng-click="removeItem(item.id)"></i></a> <a href="#"><img
-                                        src="<% item.attributes.image %>" alt="Cart Image"><% item.name %></a> <span
+                                        ng-src="<% (item && item.attributes && item.attributes.image) ? item.attributes.image : '' %>"
+                                        alt="Cart Image"><% item.name %></a> <span
                                     class="quantity"><% item.quantity %> × <span class="woocommerce-Price-amount amount"><span
                                             class="woocommerce-Price-currencySymbol"></span>  <% (+item.price > 0) ? ((+item.price) | number) + '₫' : 'Liên hệ' %></span></span>
                             </li>

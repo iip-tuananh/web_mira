@@ -46,4 +46,4 @@
 
 <link rel="stylesheet" href="/site/assets/css/app.min.css">
 <link rel="stylesheet" href="/site/assets/css/fontawesome.min.css">
-<link rel="stylesheet" href="/site/assets/css/style.css">
+<link rel="stylesheet" href="/site/assets/css/style.css?v=2.1">

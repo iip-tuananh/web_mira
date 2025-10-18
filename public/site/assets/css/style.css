@@ -4560,7 +4560,7 @@ ul.widget_rss, ul.wp-block-rss, ol.widget_rss, ol.wp-block-rss {
 }
 
 .main-menu > ul > li > a {
-    padding: 20px 0
+    padding: 10px 0
 }
 
 .main-menu > ul > li > a:hover {
@@ -6077,7 +6077,7 @@ ul.widget_rss, ul.wp-block-rss, ol.widget_rss, ol.wp-block-rss {
 
 .breadcumb-wrapper {
     background-color: var(--smoke-color2);
-    padding: 170px 0 170px 0;
+    padding: 120px 0 120px 0;
     overflow: hidden;
     text-align: center;
     margin-top: 5px
@@ -6099,7 +6099,7 @@ ul.widget_rss, ul.wp-block-rss, ol.widget_rss, ol.wp-block-rss {
 
 @media (max-width: 991px) {
     .breadcumb-wrapper {
-        padding: 110px 0 110px 0
+        padding: 70px 0 70px 0
     }
 }
 

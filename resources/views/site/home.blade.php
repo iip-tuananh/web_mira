@@ -385,7 +385,7 @@
                            muted
                            playsinline
                            loop
-                           poster="/storage/videos/intro-poster.jpg"
+
                            aria-label="Video giới thiệu">
                         <!-- Thay bằng path lấy từ DB -->
                         <source src="{{ $about->video_path }}" type="video/mp4">

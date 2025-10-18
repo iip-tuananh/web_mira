@@ -10,7 +10,7 @@
 @endsection
 
 @section('content')
-    <div class="breadcumb-wrapper" data-bg-src="assets/img/bg/breadcumb-bg.jpg">
+    <div class="breadcumb-wrapper" >
         <div class="container">
             <div class="breadcumb-content"><h1 class="breadcumb-title">Giỏ hàng</h1>
                 <ul class="breadcumb-menu">
@@ -42,7 +42,8 @@
                         <td data-title="Product"><a class="cart-productimage" href="shop-detailis.html">
                                 <img width="91"
                                      height="91"
-                                     src="<% item.attributes.image %>"
+
+                                     ng-src="<% (item && item.attributes && item.attributes.image) ? item.attributes.image : '' %>"
                                      alt="Image"
                                 ></a>
                         </td>
@@ -98,20 +99,7 @@
             </div>
         </div>
     </div>
-    <div class="">
-        <div class="container z-index-common">
-            <div class="newsletter-wrap">
-                <div class="newsletter-content"><h4 class="newsletter-title">Sign Up to Get Updates & News About
-                        Us.</h4>
-                </div>
-                <form class="newsletter-form">
-                    <div class="form-group"><input class="form-control" type="email" placeholder="Email Address"
-                                                   required=""></div>
-                    <button type="submit" class="th-btn style6">Subscribe</button>
-                </form>
-            </div>
-        </div>
-    </div>
+
 @endsection
 
 @push('scripts')
