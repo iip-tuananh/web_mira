@@ -10,6 +10,7 @@ use App\Model\Admin\Post;
 use App\Model\Admin\Product;
 use App\Model\Admin\ProductCategorySpecial;
 use App\Model\Admin\ProductGallery;
+use App\Model\Admin\ProductType;
 use App\Model\Admin\ProductVideo;
 use App\Model\Admin\Tag;
 use Cassandra\Exception\ProtocolException;
@@ -156,6 +157,8 @@ class ProductController extends Controller
 
             $object->save();
 
+           $object->syncTypes($request);
+
             FileHelper::uploadFileToCloudflare($request->image, $object->id, ThisModel::class, 'image');
             $object->syncGalleries($request->galleries);
 
@@ -210,6 +213,9 @@ class ProductController extends Controller
             }
 
             $object->syncGalleries($request->galleries);
+
+            ProductType::query()->where('product_id', $id)->delete();
+            $object->syncTypes($request);
 
             DB::commit();
 

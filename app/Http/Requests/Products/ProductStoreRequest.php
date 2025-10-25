@@ -34,7 +34,7 @@ class ProductStoreRequest extends BaseRequest
             'base_price' => 'nullable|integer',
             'price' => 'nullable|integer',
             'status' =>'required|in:0,1',
-            'image' => 'nullable|file|mimes:jpg,jpeg,png,webp|max:3000',
+            'image' => 'required|file|mimes:jpg,jpeg,png,webp|max:3000',
             'image_back' => 'nullable|file|mimes:jpg,jpeg,png|max:3000',
             'galleries' => 'nullable|array|min:1|max:20',
             'galleries.*.image' => 'required|file|mimes:png,jpg,jpeg|max:10000',

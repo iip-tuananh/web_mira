@@ -172,6 +172,44 @@
 
     </script>
 
+    <script>
+    app.controller('footerBlock', function ($rootScope, $scope, $sce, $interval) {
+        $scope.errors = [];
+        $scope.submitContactRegister = function () {
+            var url = "{{route('front.postContactFooter')}}";
+            var data = jQuery('#form-contact-footer').serialize();
+            $scope.loading = true;
+            jQuery.ajax({
+                type: 'POST',
+                url: url,
+                headers: {
+                    'X-CSRF-TOKEN': CSRF_TOKEN
+                },
+                data: data,
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        jQuery('#form-contact-footer')[0].reset();
+                        $scope.errors = [];
+                        $scope.$apply();
+                    } else {
+                        $scope.errors = response.errors;
+                        toastr.warning(response.message);
+                    }
+                },
+                error: function () {
+                    toastr.error('Đã có lỗi xảy ra');
+                },
+                complete: function () {
+                    $scope.loading = false;
+                    $scope.$apply();
+                }
+            });
+        }
+    })
+
+</script>
+
     @stack('scripts')
     <script>
         (function () {
@@ -191,6 +229,67 @@
             }
         })();
     </script>
+
+
+
+
+    <script defer>
+    document.addEventListener('DOMContentLoaded', function(){
+        const menuRoot = document.querySelector('.th-mobile-menu');
+        if(!menuRoot) return;
+
+        const viewport = menuRoot.querySelector('.mn-viewport');
+        const track    = menuRoot.querySelector('.mn-track');
+        const panels   = Array.from(menuRoot.querySelectorAll('.mn-panel'));
+        const idToIdx  = Object.fromEntries(panels.map((p,i)=>[p.id, i]));
+        const stack    = ['mn-root'];
+
+        function setActive(id){
+            const idx = idToIdx[id];
+            if(idx == null) return;
+            track.style.transform = `translateX(-${idx*100}%)`;
+            requestAnimationFrame(()=> viewport && (viewport.style.height = panels[idx].scrollHeight+'px'));
+        }
+        setActive(stack[0]);
+
+        function onNavEvent(e){
+            // chỉ xử lý nếu click nằm trong menu
+            if(!menuRoot.contains(e.target)) return;
+
+            // tìm phần tử có data-target (ưu tiên chính phần tử, nếu không có tìm lên li)
+            const el = e.target.closest('[data-target], .to-sub, .mn-back');
+            if(!el) return;
+
+            // Back trước
+            if(el.classList.contains('mn-back')){
+                e.preventDefault();
+                if(stack.length > 1){ stack.pop(); setActive(stack[stack.length-1]); }
+                return;
+            }
+
+            // Đi tới submenu
+            let target = el.getAttribute('data-target');
+            if(!target){
+                const li = el.closest('li[data-target]');
+                if(li) target = li.getAttribute('data-target');
+            }
+            if(!target) return;
+
+            e.preventDefault();               // chặn <a> nhảy trang
+            const id = target.replace('#','');
+            if(!(id in idToIdx)) return;      // panel không tồn tại
+            stack.push(id);
+            setActive(id);
+        }
+
+        // dùng capture để “đón” sự kiện trước khi script khác chặn
+        menuRoot.addEventListener('click', onNavEvent, true);
+        menuRoot.addEventListener('pointerup', onNavEvent, true);
+        menuRoot.addEventListener('touchend', onNavEvent, {capture:true, passive:false});
+
+        window.addEventListener('resize', ()=> setActive(stack[stack.length-1]), {passive:true});
+    });
+</script>
 
 </body>
 

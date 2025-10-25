@@ -1,13 +1,7 @@
 @extends('site.layouts.master')
-@section('title')
-    Tìm kiếm - {{ $config->web_title }}
-@endsection
-@section('description')
-    {{ strip_tags(html_entity_decode($config->introduction)) }}
-@endsection
-@section('image')
-    {{@$config->image->path ?? ''}}
-@endsection
+@section('title'){{ $category ? $category->name : "Sản phẩm" }} - {{ $config->web_title }}@endsection
+@section('description'){{ strip_tags(html_entity_decode($config->introduction)) }}@endsection
+@section('image'){{@$config->image->path ?? ''}}@endsection
 
 @section('css')
 
@@ -16,12 +10,12 @@
 
 @section('content')
 
-    <div class="breadcumb-wrapper" data-bg-src="">
+    <div class="breadcumb-wrapper" data-bg-src="{{ @$category->image->path ?? '' }}">
         <div class="container">
-            <div class="breadcumb-content"><h1 class="breadcumb-title">Tìm kiếm</h1>
+            <div class="breadcumb-content"><h1 class="breadcumb-title">{{ @$category->name ?? 'Sản phẩm' }}</h1>
                 <ul class="breadcumb-menu">
                     <li><a href="{{ route('front.home-page') }}">Trang chủ</a></li>
-                    <li>Tìm kiếm</li>
+                    <li>{{ @$category->name ?? 'Sản phẩm' }}</li>
                 </ul>
             </div>
         </div>
@@ -32,10 +26,30 @@
                 <div class="row justify-content-between align-items-center">
                     <div class="col-md">
                         <p class="woocommerce-result-count">
-                            Tìm thấy {{ $products->count() }} sản phẩm phù hợp với từ khóa "{{ $keyword }}"
+                            @if($products->total() > 0)
+                                Hiển thị {{ number_format($products->firstItem()) }}–{{ number_format($products->lastItem()) }}
+                                trên tổng {{ number_format($products->total()) }}
+                                sản phẩm
+                            @else
+                                0 sản phẩm
+                            @endif
                         </p>
                     </div>
+                    <div class="col-md-auto">
+                        @php
+                            $currentSort = request('sort', 'date_desc');
+                        @endphp
 
+                        <form class="woocommerce-ordering" method="get">
+                            <select name="sort" class="orderby" aria-label="Shop order" onchange="this.form.submit()">
+                                <option value="date_desc" {{ $currentSort === 'date_desc' ? 'selected' : '' }}>Mặc định</option>
+                                <option value="name_asc"  {{ $currentSort === 'name_asc'  ? 'selected' : '' }}>Tên A–Z</option>
+                                <option value="name_desc" {{ $currentSort === 'name_desc' ? 'selected' : '' }}>Tên Z–A</option>
+                                <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>Giá thấp đến cao</option>
+                                <option value="price_desc"{{ $currentSort === 'price_desc'? 'selected' : '' }}>Giá cao xuống thấp</option>
+                            </select>
+                        </form>
+                    </div>
                 </div>
             </div>
             <div class="row gy-40">
@@ -48,6 +62,7 @@
 
             </div>
 
+            {{ $products->links('site.pagination.paginate2') }}
 
 
         </div>
@@ -56,7 +71,6 @@
 @endsection
 
 @push('scripts')
-
     <script>
         app.controller('productList', function ($rootScope, $scope, cartItemSync, $interval) {
             $scope.cart = cartItemSync;
@@ -107,5 +121,4 @@
         })
 
     </script>
-
 @endpush

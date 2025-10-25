@@ -155,7 +155,7 @@
     <div class="space-bottom" ng-controller="AboutPage">
         <div class="container">
             <form id="form-contact"
-                  class="contact-form input-smoke"><h2 class="sec-title">Để lại lời nhắn</h2>
+                  class="contact-form input-smoke" ng-cloak><h2 class="sec-title">Để lại lời nhắn</h2>
                 <div class="row">
                     <div class="form-group col-md-6">
                         <input type="text" class="form-control" name="name" id="name" placeholder="Họ tên"> <i class="fal fa-user"></i>

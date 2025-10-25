@@ -34,6 +34,108 @@
         border: 1px dashed green;
     }
 </style>
+<style>
+    /* ===== Base ===== */
+    .variant-group { margin-top: 8px; }
+
+    .variant-head,
+    .variant-row{
+        display: grid;
+        grid-template-columns:
+    2.2fr                     /* Tên phân loại (rộng) */
+    minmax(120px,1fr)         /* Giá gốc */
+    minmax(120px,1fr)         /* Giá bán */
+    67px;                    /* Thao tác (cố định để đặt 2 nút) */
+        gap: 14px;
+        align-items: center;
+    }
+
+    .variant-head{
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .02em;
+        color: #6b7280;
+        padding: 8px 12px;
+        border: 1px dashed #e5e7eb;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    .variant-row{
+        padding: 12px;
+        border: 1px solid #eef1f5;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 2px 6px rgba(16,24,40,.04);
+        margin-bottom: 10px;
+    }
+    .variant-row:hover{ box-shadow: 0 4px 14px rgba(16,24,40,.08); }
+
+    .variant-footer{ margin-top: 8px; }
+
+    .cell{ display:flex; flex-direction:column; gap:6px; }
+    .cell.-full{ grid-column: 1 / -1; }
+
+    .form-control{ height:40px; }
+    .ta-right{ text-align:right; }
+    .ta-center{ text-align:center; }
+    .no-wrap{ white-space:nowrap; }
+
+    /* Suffix “₫” */
+    .input-affix{ position:relative; }
+    .input-affix[data-suffix]::after{
+        content: attr(data-suffix);
+        position:absolute; right:10px; top:50%; transform:translateY(-50%);
+        font-size:13px; color:#6b7280; pointer-events:none;
+    }
+    .input-affix > .form-control{ padding-right:28px; }
+
+    /* Buttons (fallback nếu không dùng BS5) */
+    .btn{ display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 12px; border-radius:8px; border:1px solid transparent; cursor:pointer; }
+    .btn-light{ background:#f3f4f6; color:#111827; }
+    .btn-light:hover{ background:#e5e7eb; }
+    .btn-success{ background:#10b981; color:#fff; }
+    .btn-success:hover{ background:#059669; }
+    .btn-danger{ background:#ef4444; color:#fff; }
+    .btn-danger:hover{ background:#dc2626; }
+
+    /* Cột thao tác: xếp dọc 2 nút trên desktop */
+    .variant-row .cell.actions{
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+    }
+    .variant-row .cell.actions .btn{
+        width:100%;
+        justify-content:center;
+        height:36px;
+        border-radius:10px;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 992px){
+        /* Tablet: Tên tràn full hàng, giá gốc & giá bán nằm hàng dưới, thao tác full hàng */
+        .variant-head{ display:none; }
+        .variant-row{
+            grid-template-columns: 1fr 1fr;
+            grid-auto-rows: auto;
+        }
+        .variant-row > .cell:nth-child(1){ grid-column: 1 / -1; } /* Tên */
+        .variant-row .cell.actions{
+            grid-column: 1 / -1;
+            flex-direction: row;
+        }
+        .variant-row .cell.actions .btn{ flex:1; }
+    }
+
+    @media (max-width: 576px){
+        /* Mobile: mỗi dòng 1 cột cho dễ bấm */
+        .variant-row{ grid-template-columns: 1fr; }
+        .no-wrap{ white-space: normal; }
+    }
+
+</style>
 <div class="row">
     <div class="col-sm-8">
         <div class="form-group custom-group mb-4">
@@ -130,19 +232,123 @@
             </span>
         </div>
 
-{{--        <div class="form-group custom-group mb-4">--}}
-{{--            <label class="form-label">Tình trạng</label>--}}
-{{--            <select id="my-select" class="form-control custom-select" ng-model="form.state">--}}
-{{--                <option value="">Chọn tình trạng hàng hóa</option>--}}
-{{--                <option value="1">Còn hàng</option>--}}
-{{--                <option value="2">Hết hàng</option>--}}
-{{--            </select>--}}
-{{--            <span class="invalid-feedback d-block" role="alert">--}}
-{{--                <strong>--}}
-{{--                    <% errors.state[0] %>--}}
-{{--                </strong>--}}
-{{--            </span>--}}
+
+
+{{--        <div class="form-group">--}}
+{{--            <label class="form-label">Phân loại sản phẩm</label>--}}
+
+{{--            <div ng-repeat="(idx, item) in form.types" class="result-item">--}}
+{{--                <input type="text"--}}
+{{--                       class="form-control form-control--small"--}}
+{{--                       placeholder="Nhập tên"--}}
+{{--                       ng-model="item.title" />--}}
+
+{{--                <input type="text"--}}
+{{--                       class="form-control"--}}
+{{--                       placeholder="Nhập giá trước giảm"--}}
+{{--                       ng-model="item.base_price" />--}}
+
+{{--                <input type="text"--}}
+{{--                       class="form-control"--}}
+{{--                       placeholder="Nhập giá bán"--}}
+{{--                       ng-model="item.price" />--}}
+
+{{--                <button type="button"--}}
+{{--                        class="btn btn-success"--}}
+{{--                        ng-if="idx === form.types.length - 1"--}}
+{{--                        ng-click="form.addType()">--}}
+{{--                    <i class="fa fa-plus"></i>--}}
+{{--                </button>--}}
+
+{{--                <button type="button"--}}
+{{--                        class="btn btn-danger"--}}
+{{--                        ng-if="form.types.length > 1"--}}
+{{--                        ng-click="form.removeType(idx)">--}}
+{{--                    <i class="fa fa-times"></i>--}}
+{{--                </button>--}}
+{{--            </div>--}}
+
+{{--            <div class="invalid-feedback d-block"><% errors.types %></div>--}}
 {{--        </div>--}}
+
+        <!-- ====== Product Types (Variants) ====== -->
+        <div class="form-group variant-group">
+            <label class="form-label">Phân loại sản phẩm</label>
+
+            <!-- Header row -->
+            <div class="variant-head" aria-hidden="true">
+                <div>Tên phân loại</div>
+                <div>Giá gốc</div>
+                <div>Giá bán</div>
+                <div class="ta-right">Thao tác</div>
+            </div>
+
+            <!-- Rows -->
+            <div class="variant-row"
+                 ng-repeat="(idx, item) in form.types track by idx">
+
+                <!-- Title -->
+                <div class="cell">
+                    <input type="text"
+                           class="form-control"
+                           ng-model="item.title" />
+                </div>
+
+                <!-- Base price -->
+                <div class="cell">
+                    <div class="input-affix" data-suffix="₫">
+                        <input type="text"
+                               class="form-control ta-right"
+                               ng-model="item.base_price"
+                               />
+                    </div>
+
+                </div>
+
+                <!-- Price -->
+                <div class="cell">
+                    <div class="input-affix" data-suffix="₫">
+                        <input type="text"
+                               class="form-control ta-right"
+                               ng-model="item.price"
+                              />
+                    </div>
+                </div>
+
+
+                <!-- Actions -->
+                <div class="cell ta-right no-wrap">
+                    <button type="button"
+                            class="btn btn-light"
+                            title="Thêm dòng"
+                            ng-if="idx === form.types.length - 1"
+                            ng-click="form.addType()">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                    <button type="button"
+                            class="btn btn-danger"
+                            title="Xóa dòng"
+                            ng-if="form.types.length > 1"
+                            ng-click="form.removeType(idx)">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Optional row note / error -->
+                <div class="cell -full" ng-if="item.error">
+                    <div class="invalid-feedback d-block"><% item.error %></div>
+                </div>
+            </div>
+
+            <!-- Global add button (tiện cho mobile) -->
+            <div class="variant-footer">
+                <button type="button" class="btn btn-success" ng-click="form.addType()">
+                    <i class="fa fa-plus"></i> Thêm phân loại
+                </button>
+            </div>
+
+            <div class="invalid-feedback d-block" ng-if="errors && errors.types"><% errors.types %></div>
+        </div>
 
 
         <div class="form-group text-center">

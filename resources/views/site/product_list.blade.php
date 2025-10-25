@@ -54,7 +54,7 @@
             </div>
             <div class="row gy-40">
                 @foreach($products as $product)
-                    <div class="col-xl-3 col-lg-4 col-sm-6">
+                    <div class="col-6 col-md-4 col-lg-4 col-xl-3">
                        @include('site.partials.product_item', ['product' => $product])
                     </div>
 

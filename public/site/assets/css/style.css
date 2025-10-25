@@ -23,7 +23,7 @@
                       /*--section-space: 120px;*/
                       --section-space: 76px;
                       /*--section-space-mobile: 80px;*/
-                      --section-space-mobile: 52px;
+                      --section-space-mobile: 44px;
                       /*--section-title-space: 60px;*/
                       --section-title-space: 32px;
                       --ripple-ani-duration: 5s
@@ -250,7 +250,7 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a, p a, span a {
     }
 
     .h2, h2 {
-        font-size: 28px
+        font-size: 25px
     }
 }
 
@@ -627,7 +627,7 @@ input[type="radio"] ~ label {
 }
 
 input[type="radio"] ~ label::before {
-    content: "\f111";
+    /*content: "\f111";*/
     position: absolute;
     font-family: var(--icon-font);
     left: 0;
@@ -1072,7 +1072,7 @@ textarea.is-invalid {
 }
 
 .th-mobile-menu ul li a:before {
-    content: '\f105';
+    /*content: '\f105';*/
     font-family: var(--icon-font);
     position: absolute;
     left: 0;
@@ -1118,12 +1118,14 @@ textarea.is-invalid {
 }
 
 .th-mobile-menu ul .th-item-has-children > a .th-mean-expand:before {
-    content: '\f067';
+    /*content: '\f067';*/
+    content: "\f105";
     font-family: var(--icon-font)
 }
 
 .th-mobile-menu ul .th-item-has-children > a:after {
-    content: "\f067";
+    /*content: "\f067";*/
+    content: "\f105";
     font-family: var(--icon-font);
     width: 22px;
     height: 22px;
@@ -1830,7 +1832,7 @@ hr.title-line {
 }
 
 .sec-btn, .title-line {
-    margin-bottom: var(--section-title-space)
+    /*margin-bottom: var(--section-title-space)*/
 }
 
 .shadow-title {
@@ -5512,7 +5514,7 @@ ul.widget_rss, ul.wp-block-rss, ol.widget_rss, ol.wp-block-rss {
 .copyright-wrap {
     padding: 18px 0;
     background-size: 100% auto;
-    background-color: var(--theme-color)
+    background-color: #222422
 }
 
 .copyright-wrap .copyright-text {
@@ -5993,8 +5995,8 @@ ul.widget_rss, ul.wp-block-rss, ol.widget_rss, ol.wp-block-rss {
 }
 
 .footer-layout3 {
-    --body-color: #282a2c;
-    background-color: var(--smoke-color2)
+    --body-color: #fff;
+    /*background-color: var(--smoke-color2)*/
 }
 
 .footer-layout3 .th-social a {

@@ -47,3 +47,11 @@
 <link rel="stylesheet" href="/site/assets/css/app.min.css">
 <link rel="stylesheet" href="/site/assets/css/fontawesome.min.css">
 <link rel="stylesheet" href="/site/assets/css/style.css?v=2.1">
+
+<style>
+    /* Ẩn mọi phần tử có ng-cloak cho tới khi Angular biên dịch xong */
+    [ng-cloak], [data-ng-cloak], [x-ng-cloak],
+    .ng-cloak, .data-ng-cloak, .x-ng-cloak {
+        display: none !important;
+    }
+</style>

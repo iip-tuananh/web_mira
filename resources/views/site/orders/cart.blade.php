@@ -21,7 +21,7 @@
         </div>
     </div>
     <div class="th-cart-wrapper space-top space-extra-bottom" ng-controller="CartController">
-        <div class="container">
+        <div class="container" ng-cloak>
 {{--            <div class="woocommerce-notices-wrapper">--}}
 {{--                <div class="woocommerce-message">Shipping costs updated.</div>--}}
 {{--            </div>--}}
@@ -39,7 +39,7 @@
                     </thead>
                     <tbody>
                     <tr class="cart_item" ng-repeat="item in items">
-                        <td data-title="Product"><a class="cart-productimage" href="shop-detailis.html">
+                        <td data-title="Hình ảnh"><a class="cart-productimage" href="shop-detailis.html">
                                 <img width="91"
                                      height="91"
 
@@ -48,13 +48,22 @@
                                 ></a>
                         </td>
 
-                        <td data-title="Name"><a class="cart-productname" href="shop-detailis.html"><% item.name %></a>
+                        <td data-title="Sản phẩm">
+                            <a class="cart-productname" href="#!"><% item.name %></a>
+
+                            <br ng-if="item.attributes && item.attributes.type && item.attributes.type.type_title">
+
+                            <small class="cart-variant text-muted"
+                                   ng-if="item.attributes && item.attributes.type && item.attributes.type.type_title">
+                                Phân loại:
+                                <span ng-bind="item.attributes.type.type_title"></span>
+                            </small>
                         </td>
 
-                        <td data-title="Price"><span class="amount"><bdi><span></span>
+                        <td data-title="Đơn giá"><span class="amount"><bdi><span></span>
                                     <% (+item.price > 0) ? ((+item.price) | number) + '₫' : 'Liên hệ' %>
                                 </bdi></span></td>
-                        <td data-title="Quantity">
+                        <td data-title="Số lượng">
                             <div class="quantity">
                                 <button class="quantity-minus qty-btn"
                                         ng-click="decrementQuantity(item); changeQty(item.quantity, item.id)"><i
@@ -66,13 +75,13 @@
                                         class="far fa-plus"></i></button>
                             </div>
                         </td>
-                        <td data-title="Total"><span class="amount"><bdi><span></span>
+                        <td data-title="Thành tiền"><span class="amount"><bdi><span></span>
                                     <% (+item.price > 0)
                                     ? (((+item.price) * (+item.quantity || 1)) | number) + '₫'
                                     : 'Liên hệ' %>
                                 </bdi></span>
                         </td>
-                        <td data-title="Remove"><a href="javascript:void(0)" class="remove" ng-click="removeItem(item.id)"><i class="fal fa-trash-alt"></i></a></td>
+                        <td data-title="Xóa"><a href="javascript:void(0)" class="remove" ng-click="removeItem(item.id)"><i class="fal fa-trash-alt"></i></a></td>
                     </tr>
 
                     <tr>

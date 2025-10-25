@@ -10,32 +10,14 @@
 @endsection
 
 @section('css')
+    <link rel="stylesheet" type="text/css" href="/site/assets/css/home-page.css">
 
 @endsection
 
 @section('content')
 
     <div ng-controller="homePage">
-        <style>
-            /* Full width (full-bleed) */
-            .hero-fullbleed{ width:100vw; margin-left:50%; transform:translateX(-50%); }
 
-            /* Đảm bảo có chiều cao để không “0px” */
-            .hero-swiper{
-                aspect-ratio: 21/9;      /* có thể đổi 21/9, 3/2… */
-                /*min-height: 260px;       !* chống case màn quá hẹp *!*/
-                max-height: 630px;       /* tuỳ giao diện của bạn */
-                overflow: clip;
-            }
-
-            /*@media (max-width: 768px){ .hero-swiper{ aspect-ratio: 4/5; } }*/
-
-            .hero-slide, .hero-slide > img{ width:100%; height:100%; display:block; }
-            .hero-img{ object-fit: cover; object-position: center; display:block; }
-
-            .swiper-button-prev, .swiper-button-next{ color:#fff; text-shadow:0 2px 16px rgba(0,0,0,.5); }
-            @media (max-width: 575.98px){ .swiper-button-prev, .swiper-button-next{ display:none; } }
-        </style>
 
         <div class="th-hero-wrapper" id="hero">
 
@@ -56,6 +38,17 @@
                                 data-src="{{ $src }}"
                                 alt="{{ $banner->title ?? 'Banner' }}"
                             >
+
+                            <div class="hero-overlay">
+                                <div class="hero-content">
+                                    <h2 class="hero-title">{{ $banner->title }}</h2>
+                                    <a class="hero-btn"
+                                       href="{{ $banner->link }}"
+                                       title="{{ $banner->title }}">
+                                        {{ 'Liên hệ' }}
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     @endforeach
                 </div>
@@ -64,67 +57,7 @@
         </div>
 
         <!-- ===== CATEGORY GRID ===== -->
-        <style>
-            /* ===== STYLES ===== */
-            .cat-grid{
-                display:grid;
-                grid-template-columns: repeat(3, 1fr);  /* desktop 3 cột */
-                gap: 16px;
-            }
-            @media (max-width: 991.98px){            /* mobile/tablet: 2 cột */
-                .cat-grid{ grid-template-columns: repeat(2, 1fr); }
-            }
 
-            .cat-card{
-                position: relative;
-                display: grid;
-                grid-template-columns: 1fr auto;       /* chữ trái / ảnh phải */
-                align-items: center;
-                padding: clamp(11px, 0.2vw, 10px) clamp(16px, 1.6vw, 27px);
-                border-radius: 16px;
-                background: #faefe2;                   /* nền be giống ảnh */
-                min-height: clamp(120px, 18vw, 119px); /* chiều cao linh hoạt */
-                text-decoration: none;
-                overflow: hidden;
-                box-shadow: 0 1px 0 rgba(0,0,0,.04) inset;
-                transition: transform .2s ease, box-shadow .2s ease;
-            }
-            .cat-card:hover{
-                transform: translateY(-2px);
-                box-shadow: 0 6px 18px rgba(0,0,0,.06);
-            }
-
-            .cat-text{
-                color:#1a1a1a;
-                font-weight: 700;
-                font-size: clamp(16px, 1.4vw, 20px);
-                line-height: 1.25;
-                padding-right: 8px;
-            }
-
-            .cat-figure{
-                position: relative;
-                width: min(69%, 220px);  /* vùng chứa ảnh bên phải */
-                height: 100%;
-                display:flex; align-items:center; justify-content:flex-end;
-            }
-            .cat-figure img{
-                max-width: 100%;
-                max-height: 100%;
-                object-fit: contain;
-                display:block;
-                filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
-                transform: translateX(6px); /* tràn nhẹ ra phải như ảnh mẫu */
-            }
-
-            /* bo góc mượt hơn khi ảnh sát cạnh */
-            .cat-card::after{
-                content:""; position:absolute; inset:0;
-                border-radius:16px; pointer-events:none;
-                box-shadow: 0 0 0 1px rgba(0,0,0,.06) inset;
-            }
-
-        </style>
 
 
         <section class="space-top">
@@ -156,214 +89,102 @@
         </section>
 
 
-
         @foreach($categoriesSpecial as $cateSpecial)
+
+
+
+            @php $sliderId = 'productSlider'.$loop->index; @endphp
             <section class="space">
-                <div class="container">
-                    <div class="row justify-content-lg-between justify-content-center align-items-end">
-                        <div class="col-lg">
-                            <div class="title-area text-center text-lg-start"><span class="sub-title"><img
-                                        src="/site/assets/img/theme-img/title_icon.svg" alt="Icon">{{ $cateSpecial->name }}</span>
-                                <h2 class="sec-title">{{ $cateSpecial->intro }}</h2></div>
+
+                <section class="feature-split">
+                    <div class="feature-split__inner">
+                        <!-- Text block -->
+                        <div class="feature-split__text">
+{{--                            <p class="eyebrow">DON’T OVERTHINK IT.</p>--}}
+                            <h2 class="title">{{ $cateSpecial->title_banner }}</h2>
+                            <p class="desc">
+                                {{ $cateSpecial->intro_banner }}
+                            </p>
+                            <a href="{{ route('front.getProductSpecial', $cateSpecial->slug) }}" class="cta">Khám phá</a>
                         </div>
-                        <div class="col-lg-auto d-none d-lg-block">
+
+                        <!-- Image block -->
+                        <div class="feature-split__media">
+                            <img src="{{ $cateSpecial->image->path ?? '' }}"
+                                 alt="Assorted chocolates on a plate" loading="lazy">
+                        </div>
+                    </div>
+                </section>
+                <div class="container">
+
+
+
+
+                    {{-- Hàng tiêu đề + nav (DESKTOP) --}}
+                    <div class="row justify-content-lg-between justify-content-center align-items-end d-none d-lg-flex">
+                        <div class="col-lg">
+                            <div class="title-area text-center text-lg-start">
+{{--                                <span class="sub-title"><img src="/site/assets/img/theme-img/title_icon.svg" alt="Icon">{{ $cateSpecial->name }}</span>--}}
+                                <h2 class="sec-title">{{ $cateSpecial->intro }}</h2>
+                            </div>
+                        </div>
+                        <div class="col-lg-auto">
                             <div class="sec-btn">
                                 <div class="icon-box">
-                                    <button data-slider-prev="#productSlider1" class="slider-arrow default"><i
-                                            class="far fa-arrow-left"></i></button>
-                                    <button data-slider-next="#productSlider1" class="slider-arrow default"><i
-                                            class="far fa-arrow-right"></i></button>
+                                    <button data-slider-prev="#{{ $sliderId }}" class="slider-arrow default"><i class="far fa-arrow-left"></i></button>
+                                    <button data-slider-next="#{{ $sliderId }}" class="slider-arrow default"><i class="far fa-arrow-right"></i></button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="swiper th-slider has-shadow" id="productSlider1"
-                         data-slider-options='{"breakpoints":{"0":{"slidesPerView":1},"576":{"slidesPerView":"2"},"768":{"slidesPerView":"2"},"992":{"slidesPerView":"3"},"1200":{"slidesPerView":"4"}}}'>
+
+                    {{-- Hàng tiêu đề + nav (MOBILE) --}}
+                    <div class="row align-items-center gx-2 d-flex d-lg-none mb-2 cat-head-mobile">
+                        <div class="col">
+                            <div class="title-area mb-0 text-start">
+{{--          <span class="sub-title d-inline-flex align-items-center gap-1">--}}
+{{--            <img src="/site/assets/img/theme-img/title_icon.svg" alt="Icon">{{ $cateSpecial->name }}--}}
+{{--          </span>--}}
+                                <h2 class="sec-title mb-0">{{ $cateSpecial->intro }}</h2>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="icon-box nav-mobile">
+                                <button data-slider-prev="#{{ $sliderId }}" class="slider-arrow default"><i class="far fa-arrow-left"></i></button>
+                                <button data-slider-next="#{{ $sliderId }}" class="slider-arrow default"><i class="far fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- SLIDER --}}
+                    <div class="swiper th-slider has-shadow" id="{{ $sliderId }}"
+                         data-slider-options='{
+           "spaceBetween": 16,
+           "breakpoints": {
+             "0":   { "slidesPerView": 2.1, "spaceBetween": 12, "slidesOffsetBefore": 8, "slidesOffsetAfter": 8 },
+             "576": { "slidesPerView": 2.1, "spaceBetween": 12, "slidesOffsetBefore": 10, "slidesOffsetAfter": 10 },
+             "768": { "slidesPerView": 2 },
+             "992": { "slidesPerView": 3 },
+             "1200":{ "slidesPerView": 4 }
+           }
+         }'>
                         <div class="swiper-wrapper">
                             @foreach($cateSpecial->products as $productSpec)
                                 <div class="swiper-slide">
                                     @include('site.partials.product_item', ['product' => $productSpec])
                                 </div>
-
                             @endforeach
                         </div>
                     </div>
-                    <div class="d-block d-lg-none mt-40 text-center">
-                        <div class="icon-box">
-                            <button data-slider-prev="#productSlider1" class="slider-arrow default"><i
-                                    class="far fa-arrow-left"></i></button>
-                            <button data-slider-next="#productSlider1" class="slider-arrow default"><i
-                                    class="far fa-arrow-right"></i></button>
-                        </div>
-                    </div>
+
+                    {{-- Bỏ nav mobile ở dưới (đã chuyển lên cạnh title) --}}
+                    {{-- <div class="d-block d-lg-none mt-40 text-center"> ... </div> --}}
+
                 </div>
             </section>
-
         @endforeach
 
 
-        <style>
-            :root {
-                --blue-deep: #073a6b;
-                --scallop-h: 44px;
-            }
-
-            /* MEDIA: khung video full-width nhưng thấp theo --vid-h */
-            .vid-wrap {
-                position: relative !important;
-                width: 100% !important;
-                height: var(--vid-h, 320px) !important; /* chiều cao tuỳ chỉnh */
-                background: #000 !important;
-                overflow: hidden !important;
-            }
-
-            /* Video fill khung, không bị co; crop đẹp theo chiều cao nhỏ */
-            .intro-video {
-                position: absolute !important;
-                inset: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                object-fit: cover !important; /* quan trọng để không bị letterbox */
-                object-position: 50% 50% !important; /* canh tâm, có thể đổi 50% 30% */
-                display: block !important;
-                border: 0 !important;
-            }
-
-            /* Nút bật tiếng */
-            .vid-unmute {
-                position: absolute;
-                right: 12px;
-                bottom: 12px;
-                z-index: 2;
-                padding: 10px 14px;
-                border: 0;
-                border-radius: 999px;
-                background: rgba(255, 255, 255, .9);
-                font-weight: 600;
-                cursor: pointer;
-            }
-
-            .vid-unmute:hover {
-                background: #fff;
-            }
-
-            /* Khối text bên dưới (ví dụ) */
-            .intro-text {
-                background: var(--blue-deep) !important;
-                color: #e7f2ff !important;
-                padding: calc(var(--scallop-h) + 24px) 16px 48px !important;
-            }
-
-            .intro-text__inner {
-                max-width: 1100px !important;
-                margin: 0 auto !important;
-                text-align: center !important;
-            }
-
-            .btn-cta {
-                display: inline-block !important;
-                margin-top: 10px !important;
-                padding: 10px 16px !important;
-                color: #fff !important;
-                background: #0b5aa0 !important;
-                border-radius: 999px !important;
-                text-decoration: none !important;
-            }
-
-            /* Breakpoints: nếu có data-vid-height-md/lg sẽ set bằng JS; bổ sung fallback CSS nếu cần */
-            @media (min-width: 992px) {
-                :root {
-                    --scallop-h: 1px;
-                }
-            }
-
-        </style>
-
-        <style>
-            /* ===== Brand palette (theo logo) ===== */
-            :root{
-                --brand-g1: #41874b;  /* xanh đậm */
-                --brand-g2: #7bb957;  /* xanh nhạt */
-                --brand-dark: #0f2b19;/* xanh rừng đậm cho nền */
-                --brand-dark2:#12361f;/* xanh đậm hơn để đổ gradient */
-                --brand-amber:#f59e0b;/* cam nhấn */
-                --brand-amber2:#f97316;/* cam nhạt hơn */
-            }
-
-            /* TEXT GRADIENT cho tiêu đề */
-            .text-gradient{
-                background: linear-gradient(35deg, var(--brand-g1) 0%, var(--brand-g2) 100%);
-                -webkit-background-clip: text; background-clip: text;
-                -webkit-text-fill-color: transparent; color: transparent;
-            }
-
-            /* ===== INTRO BLOCK ===== */
-            .intro-text{
-                /* fallback solid */
-                background: var(--brand-dark) !important;
-
-                /* nền chuyển sắc xanh lá đậm + lớp phủ nhẹ cho chiều sâu */
-                background:
-                    radial-gradient(120% 160% at 15% 0%, rgba(123,185,87,.18) 0%, rgba(17,43,30,0) 55%) ,
-                    linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-dark2) 100%) !important;
-
-                color:#eaf7ed !important; /* chữ sáng, dịu mắt trên nền xanh */
-                padding: calc(var(--scallop-h) + 24px) 16px 48px !important;
-            }
-
-            .intro-text__inner{
-                max-width:1100px !important;
-                margin:0 auto !important;
-                text-align:center !important;
-            }
-
-            /* Tiêu đề + đoạn mô tả */
-            .intro-text__inner h2{
-                margin: 0 0 8px;
-                font-weight: 800;
-                letter-spacing: .2px;
-            }
-            .intro-text__inner h2 a,
-            .intro-text__inner h2{ /* áp gradient vào tiêu đề */
-                display:inline-block;
-            }
-            .intro-text__inner h2{ /* nếu muốn toàn bộ h2 gradient */
-                /* thêm class text-gradient ở HTML sẽ đẹp nhất */
-            }
-            .intro-text__inner p{
-                color:#d3ead6;            /* xanh nhạt hơn để phân cấp */
-                margin:0 0 14px;
-                line-height:1.7;
-            }
-
-            /* ===== CTA BUTTON ===== */
-            .btn-cta{
-                display:inline-block !important;
-                margin-top:12px !important;
-                padding:12px 18px !important;
-                border-radius:999px !important;
-                text-decoration:none !important;
-                font-weight:700 !important;
-                letter-spacing:.2px;
-
-                color:#0f2b19 !important; /* chữ đậm trên nền cam */
-                background: linear-gradient(35deg, var(--brand-amber) 0%, var(--brand-amber2) 100%) !important;
-                box-shadow: 0 10px 18px rgba(245,158,11,.25);
-                transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
-            }
-            .btn-cta:hover{
-                transform: translateY(-1px);
-                filter: saturate(1.05) contrast(1.03);
-                box-shadow: 0 12px 22px rgba(249,115,22,.28);
-            }
-            .btn-cta:active{ transform: translateY(0); }
-
-            /* Mobile fine-tune */
-            @media (max-width: 575.98px){
-                .intro-text{ padding: calc(var(--scallop-h) + 16px) 14px 36px !important; }
-            }
-
-        </style>
 
 
         <!-- SECTION: INTRO WITH SCALLOPED VIDEO -->
@@ -408,87 +229,7 @@
         </section>
 
 
-        <style>
-            :root {
-                --bg: #faebdb; /* nền khối */
-                --text: #111; /* màu chữ */
-                --gap: 56px; /* khoảng cách giữa item */
-                --padY: 14px;
-                --speed: 28s; /* nhỏ hơn = chạy nhanh hơn */
-                --font: "Kalam", ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-            }
 
-            .feature-slider {
-                overflow: hidden;
-                background: var(--bg);
-                padding: var(--padY) 0;
-                user-select: none;
-            }
-
-            .feature-row {
-                display: flex;
-                align-items: center;
-                gap: var(--gap);
-                width: max-content;
-                padding-inline: var(--gap);
-                margin: 0;
-                list-style: none;
-                white-space: nowrap;
-                animation: marquee var(--speed) linear infinite;
-            }
-
-            @keyframes marquee {
-                from {
-                    transform: translateX(0);
-                }
-                to {
-                    transform: translateX(-50%);
-                }
-                /* vì đã in 2 lần nội dung */
-            }
-
-            .feature-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 12px;
-                margin: 0;
-                padding: 0;
-                background: none;
-                border: 0; /* tránh xung đột Bootstrap */
-                font: 700 clamp(.9rem, .75rem + .6vw, 1.125rem)/1 var(--font);
-                letter-spacing: .02em;
-                text-transform: uppercase;
-                color: var(--text);
-            }
-
-            .feature-img {
-                width: 24px;
-                height: 24px;
-                object-fit: contain;
-                flex: 0 0 24px;
-                display: inline-block;
-                image-rendering: auto;
-            }
-
-            /* Hover để pause */
-            .feature-slider:hover .feature-row {
-                animation-play-state: paused;
-            }
-
-            /* Accessibility + responsive */
-            @media (prefers-reduced-motion: reduce) {
-                .feature-row {
-                    animation: none;
-                }
-            }
-
-            @media (max-width: 768px) {
-                :root {
-                    --gap: 36px;
-                    --padY: 10px;
-                }
-            }
-        </style>
 
         <section class="feature-slider">
             <ul class="feature-row">
@@ -516,73 +257,73 @@
             </ul>
         </section>
 
-        <section class="bg-smoke2 space">
-            <div class="shape-mockup" data-top="0" data-left="0"><img src="/site/assets/img/shape/vector_shape_1.png"
-                                                                      alt="shape">
-            </div>
-            <div class="shape-mockup" data-bottom="0" data-right="0"><img
-                    src="/site/assets/img/shape/vector_shape_2.png"
-                    alt="shape">
-            </div>
-            <div class="container">
-                <div class="row justify-content-lg-between justify-content-center align-items-end">
-                    <div class="col-lg">
-                        <div class="title-area text-center text-lg-start"><span class="sub-title"><img
-                                    src="/site/assets/img/theme-img/title_icon.svg" alt="Icon">Danh mục sản phẩm</span>
-                            <h2 class="sec-title">Khám phá các sản phẩm của chúng tôi</h2></div>
-                    </div>
-                    <div class="col-auto mt-n2 mt-lg-0">
-                        <div class="sec-btn">
-                            <div class="nav tab-menu1" role="tablist">
-                                @foreach($categories as $keyCate => $cate)
-                                    <button class="tab-btn {{ $keyCate == 0 ? 'active' : '' }}" id="nav-{{ $keyCate }}-tab" data-bs-toggle="tab" data-bs-target="#nav-{{ $keyCate }}"
-                                            role="tab" aria-controls="nav-{{ $keyCate }}" aria-selected="{{ $keyCate == 0 ? 'true' : 'false' }} ">{{ $cate->name }}
-                                    </button>
-                                @endforeach
+{{--        <section class="bg-smoke2 space">--}}
+{{--            <div class="shape-mockup" data-top="0" data-left="0"><img src="/site/assets/img/shape/vector_shape_1.png"--}}
+{{--                                                                      alt="shape">--}}
+{{--            </div>--}}
+{{--            <div class="shape-mockup" data-bottom="0" data-right="0"><img--}}
+{{--                    src="/site/assets/img/shape/vector_shape_2.png"--}}
+{{--                    alt="shape">--}}
+{{--            </div>--}}
+{{--            <div class="container">--}}
+{{--                <div class="row justify-content-lg-between justify-content-center align-items-end">--}}
+{{--                    <div class="col-lg">--}}
+{{--                        <div class="title-area text-center text-lg-start"><span class="sub-title"><img--}}
+{{--                                    src="/site/assets/img/theme-img/title_icon.svg" alt="Icon">Danh mục sản phẩm</span>--}}
+{{--                            <h2 class="sec-title">Khám phá các sản phẩm của chúng tôi</h2></div>--}}
+{{--                    </div>--}}
+{{--                    <div class="col-auto mt-n2 mt-lg-0">--}}
+{{--                        <div class="sec-btn">--}}
+{{--                            <div class="nav tab-menu1" role="tablist">--}}
+{{--                                @foreach($categories as $keyCate => $cate)--}}
+{{--                                    <button class="tab-btn {{ $keyCate == 0 ? 'active' : '' }}" id="nav-{{ $keyCate }}-tab" data-bs-toggle="tab" data-bs-target="#nav-{{ $keyCate }}"--}}
+{{--                                            role="tab" aria-controls="nav-{{ $keyCate }}" aria-selected="{{ $keyCate == 0 ? 'true' : 'false' }} ">{{ $cate->name }}--}}
+{{--                                    </button>--}}
+{{--                                @endforeach--}}
 
-                                {{--                            <button class="tab-btn" id="nav-two-tab" data-bs-toggle="tab" data-bs-target="#nav-two"--}}
-                                {{--                                    role="tab" aria-controls="nav-two" aria-selected="false">Organic Vegetables--}}
-                                {{--                            </button>--}}
-                                {{--                            <button class="tab-btn" id="nav-three-tab" data-bs-toggle="tab" data-bs-target="#nav-three"--}}
-                                {{--                                    role="tab" aria-controls="nav-three" aria-selected="false">Fruit Juice--}}
-                                {{--                            </button>--}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="tab-content">
-                    @foreach($categories as $keyCate => $cate)
-                        <div class="tab-pane fade {{ $keyCate == 0 ? 'show active' : '' }} " id="nav-{{ $keyCate }}" role="tabpanel" aria-labelledby="nav-{{ $keyCate }}-tab">
-                            <div class="slider-area">
-                                <div class="swiper th-slider has-shadow productSlider1"
-                                     data-slider-options='{"breakpoints":{"0":{"slidesPerView":1},"576":{"slidesPerView":"2"},"768":{"slidesPerView":"2"},"992":{"slidesPerView":"3"},"1200":{"slidesPerView":"4"}}}'>
-                                    <div class="swiper-wrapper">
+{{--                                --}}{{--                            <button class="tab-btn" id="nav-two-tab" data-bs-toggle="tab" data-bs-target="#nav-two"--}}
+{{--                                --}}{{--                                    role="tab" aria-controls="nav-two" aria-selected="false">Organic Vegetables--}}
+{{--                                --}}{{--                            </button>--}}
+{{--                                --}}{{--                            <button class="tab-btn" id="nav-three-tab" data-bs-toggle="tab" data-bs-target="#nav-three"--}}
+{{--                                --}}{{--                                    role="tab" aria-controls="nav-three" aria-selected="false">Fruit Juice--}}
+{{--                                --}}{{--                            </button>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--                <div class="tab-content">--}}
+{{--                    @foreach($categories as $keyCate => $cate)--}}
+{{--                        <div class="tab-pane fade {{ $keyCate == 0 ? 'show active' : '' }} " id="nav-{{ $keyCate }}" role="tabpanel" aria-labelledby="nav-{{ $keyCate }}-tab">--}}
+{{--                            <div class="slider-area">--}}
+{{--                                <div class="swiper th-slider has-shadow productSlider1"--}}
+{{--                                     data-slider-options='{"breakpoints":{"0":{"slidesPerView":1},"576":{"slidesPerView":"2"},"768":{"slidesPerView":"2"},"992":{"slidesPerView":"3"},"1200":{"slidesPerView":"4"}}}'>--}}
+{{--                                    <div class="swiper-wrapper">--}}
 
-                                        @foreach($cate->products as $product)
-                                            <div class="swiper-slide">
-                                                @include('site.partials.product_item', ['product' => $product])
-                                            </div>
+{{--                                        @foreach($cate->products as $product)--}}
+{{--                                            <div class="swiper-slide">--}}
+{{--                                                @include('site.partials.product_item', ['product' => $product])--}}
+{{--                                            </div>--}}
 
-                                        @endforeach
+{{--                                        @endforeach--}}
 
-                                    </div>
-                                </div>
-                                <button data-slider-prev=".productSlider1" class="slider-arrow slider-prev"><i
-                                        class="far fa-arrow-left"></i></button>
-                                <button data-slider-next=".productSlider1" class="slider-arrow slider-next"><i
-                                        class="far fa-arrow-right"></i></button>
-                            </div>
-                        </div>
-                    @endforeach
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                                <button data-slider-prev=".productSlider1" class="slider-arrow slider-prev"><i--}}
+{{--                                        class="far fa-arrow-left"></i></button>--}}
+{{--                                <button data-slider-next=".productSlider1" class="slider-arrow slider-next"><i--}}
+{{--                                        class="far fa-arrow-right"></i></button>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                    @endforeach--}}
 
-                </div>
-            </div>
-        </section>
-
-
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </section>--}}
 
 
-        <section class="overflow-hidden" id="testi-sec">
+
+
+        <section class="overflow-hidden" id="testi-sec" >
             <div class="shape-mockup testi-shape1" data-top="0" data-left="0"><img
                     src="/site/assets/img/feedback.png"
                     alt="shape"></div>

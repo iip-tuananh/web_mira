@@ -87,7 +87,7 @@ class CategorySpecialController extends Controller
             [
                 'name' => 'required|unique:category_special,name',
                 'show_home_page' => 'required',
-                'image' => 'nullable|file|mimes:jpg,jpeg,png|max:10240',
+                'image' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp|max:10240',
             ]
         );
         $json = new stdClass();
@@ -106,6 +106,8 @@ class CategorySpecialController extends Controller
 
             $object->name = $request->name;
             $object->intro = $request->intro;
+            $object->title_banner = $request->title_banner;
+            $object->intro_banner = $request->intro_banner;
             $object->order_number = $request->order_number;
             $object->show_home_page = $request->show_home_page;
             $object->save();
@@ -141,7 +143,7 @@ class CategorySpecialController extends Controller
             [
                 'name' => 'required|unique:category_special,name,'.$id.",id",
                 'show_home_page' => 'required',
-                'image' => 'nullable|file|mimes:jpg,jpeg,png|max:10240',
+                'image' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp|max:10240',
             ]
         );
         $json = new stdClass();
@@ -159,6 +161,8 @@ class CategorySpecialController extends Controller
             $object = ThisModel::findOrFail($id);
             $object->name = $request->name;
             $object->intro = $request->intro;
+            $object->title_banner = $request->title_banner;
+            $object->intro_banner = $request->intro_banner;
             $object->order_number = $request->order_number;
             $object->show_home_page = $request->show_home_page;
             $object->save();

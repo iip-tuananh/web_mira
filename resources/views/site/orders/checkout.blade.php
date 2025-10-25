@@ -2700,11 +2700,22 @@
                                             </td>
                                             <td class="product-description">
                                                 <span class="product-description-name order-summary-emphasis"><% item.name %></span>
-                                                <div ng-if="item.attributes">
-                                                    <div ng-repeat="attribute in item.attributes.attributes">
-                                                        <% attribute.name %>: <span style="font-weight: 400; color: #338dbc;"><% attribute.value %></span>
-                                                    </div>
-                                                </div>
+
+
+                                                <br ng-if="item.attributes && item.attributes.type && item.attributes.type.type_title">
+
+                                                <small class="cart-variant text-muted"
+                                                       ng-if="item.attributes && item.attributes.type && item.attributes.type.type_title">
+                                                    Phân loại:
+                                                    <span ng-bind="item.attributes.type.type_title"></span>
+                                                </small>
+
+
+{{--                                                <div ng-if="item.attributes">--}}
+{{--                                                    <div ng-repeat="attribute in item.attributes.attributes">--}}
+{{--                                                        <% attribute.name %>: <span style="font-weight: 400; color: #338dbc;"><% attribute.value %></span>--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
                                             </td>
                                             <td class="product-quantity visually-hidden"><% item.quantity | number %></td>
                                             <td class="product-price">

@@ -97,11 +97,11 @@
                                 <td class="text-center"><% $index + 1 %></td>
                                 <td class="text-center"><% detail.product.name %></td>
                                 <td class="text-center"><% detail.type %></td>
-                                <td class="text-center" ng-if="detail.product.price > 0"><% detail.product.price | number %></td>
-                                <td class="text-center" ng-if="detail.product.price <= 0">Liên hệ</td>
+                                <td class="text-center" ng-if="detail.price > 0"><% detail.price | number %></td>
+                                <td class="text-center" ng-if="detail.price <= 0">Liên hệ</td>
                                 <td class="text-center"><% detail.qty | number %></td>
-                                <td class="text-right" ng-if="detail.product.price > 0"><% (detail.qty * detail.price) | number %></td>
-                                <td class="text-right" ng-if="detail.product.price <= 0">Liên hệ</td>
+                                <td class="text-right" ng-if="detail.price > 0"><% (detail.qty * detail.price) | number %></td>
+                                <td class="text-right" ng-if="detail.price <= 0">Liên hệ</td>
 
                             </tr>
                             <tr>

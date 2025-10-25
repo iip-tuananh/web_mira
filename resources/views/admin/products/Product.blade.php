@@ -1,6 +1,7 @@
 @include('admin.products.ProductGallery')
 @include('admin.products.ProductAttribute')
 @include('admin.products.ProductVideo')
+@include('admin.products.ProductType')
 <script>
     class Product extends BaseClass {
         no_set = [];
@@ -12,7 +13,30 @@
         }
 
         after(form) {
+            this.types = form.types && form.types.length
+                ? form.types
+                : [
+                    new ProductType({ title: null}),
+                ];
+        }
 
+        get types() {
+            return this._types || [];
+        }
+
+        set types(value) {
+            this._types = (value || []).map(val => new ProductType(val, this));
+        }
+
+        addType(result) {
+            if (!this._types) this._types = [];
+            let new_result = new ProductType(result, this);
+            this._types.push(new_result);
+            return new_result;
+        }
+
+        removeType(index) {
+            this._types.splice(index, 1);
         }
 
         get base_price() {
@@ -75,6 +99,8 @@
                 body: this.body,
                 status: this.status,
                 state: this.state,
+                types: this.types.map(val => val.submit_data)
+
             }
 
             data = jsonToFormData(data);

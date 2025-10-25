@@ -69,6 +69,11 @@ class Product extends BaseModel
         return true;
     }
 
+    public function types()
+    {
+        return $this->hasMany(ProductType::class, 'product_id');
+    }
+
     public function canEdit()
     {
         return Auth::user()->type == User::SUPER_ADMIN || Auth::user()->type == User::QUAN_TRI_VIEN;
@@ -203,6 +208,7 @@ class Product extends BaseModel
                 'image_back',
                 'manufacturer',
                 'videos',
+                'types',
                 'galleries' => function ($q) {
                     $q->select(['id', 'product_id', 'sort'])
                         ->with(['image'])
@@ -289,6 +295,30 @@ class Product extends BaseModel
         foreach ($attributes as $attribute) {
             $this->attributeValues()->attach($attribute['attribute_id'], ['value' => $attribute['value']]);
         }
+    }
+
+    public function syncTypes($request)
+    {
+        $types = $request->input('types', []);
+        $filtered = collect($types)
+            ->filter(function ($item) {
+                return isset($item['title'])
+                    && trim($item['title']) !== '' && trim($item['price']) !== '';
+            })
+            ->values()
+            ->all();
+
+        if(count($filtered) > 0) {
+            foreach ($filtered as $item) {
+                $obj = new ProductType();
+                $obj->product_id = $this->id;
+                $obj->title = $item['title'];
+                $obj->base_price = @$item['base_price'] ?? null;
+                $obj->price = $item['price'];
+                $obj->save();
+            }
+        }
+
     }
 
     public function syncGalleries($galleries)

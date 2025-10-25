@@ -126,6 +126,67 @@
         }
 
     </style>
+
+    <style>
+        /* ===== Base ===== */
+        .variant-select{ margin-top:14px; }
+        .variant-select__label{ font-weight:500; margin-bottom:21px; color:#111827; font-size: 1.3rem}
+
+        /* Layout: desktop tự co nhiều cột, mobile bắt buộc 2 cột */
+        .variant-select__list{
+            display:grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap:10px;
+        }
+        @media (max-width:576px){
+            .variant-select__list{
+                grid-template-columns: repeat(2, 1fr); /* đúng 2 phân loại / dòng */
+            }
+        }
+
+        /* Ẩn radio, vẫn truy cập được bàn phím qua label */
+        .variant-radio{
+            position:absolute;
+            opacity:0;
+            width:0; height:0;
+        }
+
+        /* Pill */
+        .variant-pill{
+            position:relative;
+            display:flex; flex-direction:column; justify-content:center;
+            min-height:70px;
+            padding:12px 14px;
+            border:1px solid #e5e7eb;
+            border-radius:12px;
+            background:#fff;
+            cursor:pointer;
+            transition:box-shadow .15s ease, border-color .15s ease, transform .02s ease;
+            outline:0;
+        }
+        .variant-pill:hover{ box-shadow:0 3px 10px rgba(0,0,0,.06); }
+        .variant-radio:focus-visible + .variant-pill{ outline:2px solid #111; outline-offset:2px; }
+
+        /* Trạng thái chọn: viền đen đậm */
+        .variant-radio:checked + .variant-pill{
+            border:2px solid #111; box-shadow:0 2px 0 rgba(0,0,0,.06) inset;
+        }
+
+        /* Texts */
+        .v-title{ font-weight:800; line-height:1.15; color:#0f172a; margin-bottom:4px; }
+        .v-price{ font-weight:600; color:#334155; }
+        .v-base{ color:#94a3b8; margin-left:6px; font-weight:500; font-size:.95em; }
+
+        /* Badge */
+        .v-badge{
+            position:absolute; right:10px; top:10px;
+            background:#f9d977; color:#111827;
+            font-weight:800; font-size:12px;
+            padding:4px 8px; border-radius:999px; line-height:1;
+            box-shadow:0 1px 0 rgba(0,0,0,.05) inset;
+        }
+
+    </style>
     @php
         $banner = @$product->category->banner->path ?? 'assets/img/bg/breadcumb-bg.jpg';
     @endphp
@@ -199,27 +260,102 @@
                     <div class="product-about">
                         <h2 class="product-title">{{ $product->name }}</h2>
 
-                    @if($product->price > 0)
-                            <p class="price"> {{ formatCurrency($product->price) }}đ
-                                @if($product->base_price > 0)
-                                    <del>{{ formatCurrency($product->base_price) }}đ</del>
-                                @endif
-                            </p>
-                        @else
-                            <p class="price">Liên hệ</p>
-                        @endif
-
                         <div class="product-rating">
                             <div class="star-rating" role="img" aria-label="Rated 5.00 out of 5"><span style="width:100%">Rated <strong
                                         class="rating">5.00</strong> out of 5 based on <span class="rating">1</span> customer rating</span>
                             </div>
-                            </div>
+                        </div>
+
+                        @php
+                            $types = $product->types ?? collect();
+                            $hasTypes = $types->count() > 0;
+
+                            if ($hasTypes) {
+                                $first = $types->first();
+                                $initPrice = (int) $first->price;
+                                $initBase  = (int) $first->base_price;
+                            } else {
+                                $initPrice = (int) $product->price;
+                                $initBase  = (int) $product->base_price;
+                            }
+
+                        @endphp
+
+
+                        @if($initPrice > 0)
+                            <p class="price" id="mainPrice">
+                                <span id="mainPriceValue">{{ number_format($initPrice, 0, ',', '.') }}đ</span>
+                                @if($initBase > $initPrice)
+                                    <del id="mainBaseValue">{{ number_format($initBase, 0, ',', '.') }}đ</del>
+                                @else
+                                    <del id="mainBaseValue" style="display:none"></del>
+                                @endif
+                            </p>
+                        @else
+                            <p class="price" id="mainPrice"><span id="mainPriceValue">Liên hệ</span><del id="mainBaseValue" style="display:none"></del></p>
+                        @endif
+
+
+
                         <p class="text">
                             {{ $product->intro }}
                         </p>
-                        <div class="mt-2 link-inherit"><p><strong class="text-title me-3">Tình trạng:</strong> <span
-                                    class="stock in-stock"><i class="far fa-check-square me-2 ms-1"></i>Còn hàng</span></p>
-                        </div>
+
+{{--                        <div class="mt-2 link-inherit"><p><strong class="text-title me-3">Tình trạng:</strong> <span--}}
+{{--                                    class="stock in-stock"><i class="far fa-check-square me-2 ms-1"></i>Còn hàng</span></p>--}}
+{{--                        </div>--}}
+
+                        @if($hasTypes)
+                            <fieldset id="variantSelect" class="variant-select">
+                                <legend class="variant-select__label">Phân loại</legend>
+
+                                <div class="variant-select__list" role="listbox" aria-label="Chọn phân loại">
+                                    @foreach($types as $i => $t)
+                                        @php
+                                            $base = (int) ($t->base_price ?? 0);
+                                            $price = (int) ($t->price ?? 0);
+                                            $save = ($base > $price && $price > 0) ? max(0, round((1 - ($price/$base))*100)) : 0;
+                                            $id = 'variant_'.$t->id ?? ('variant_'.$i);
+                                        @endphp
+
+                                        <input
+                                            class="variant-radio"
+                                            type="radio"
+                                            name="selected_type"
+                                            id="{{ $id }}"
+                                            value="{{ $t->id ?? $i }}"
+                                            data-title="{{ $t->title }}"
+                                            data-price="{{ $price }}"
+                                            data-base="{{ $base }}"
+                                            {{ $i === 0 ? 'checked' : '' }}
+                                        >
+                                        <label class="variant-pill" for="{{ $id }}" role="option" aria-selected="{{ $i===0 ? 'true':'false' }}">
+                                            @if($save > 0)
+                                                <span class="v-badge">Sale {{ $save }}%</span>
+                                            @endif
+                                            <div class="v-title">{{ $t->title }}</div>
+                                            <div>
+                                                <span class="v-price">{{ number_format($price, 0, ',', '.') }}₫</span>
+                                                @if($base > $price)
+                                                    <del class="v-base">{{ number_format($base, 0, ',', '.') }}₫</del>
+                                                @endif
+                                            </div>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </fieldset>
+                        @endif
+
+
+
+
+
+
+
+
+
+
+
                         <div class="actions">
                             <div class="quantity"><input type="number" class="qty-input" step="1" min="1" max="100"
                                                          name="quantity" value="1" title="Qty">
@@ -292,6 +428,25 @@
 @endsection
 
 @push('scripts')
+    <script>
+        function getSelectedVariant(){
+            const checked = document.querySelector('.variant-radio:checked');
+            if(!checked) return null;
+
+            let title = checked.getAttribute('data-title') || '';
+            if(!title){
+                const label = document.querySelector(`label[for="${checked.id}"] .v-title`);
+                title = label ? (label.textContent || '').trim() : '';
+            }
+
+            return {
+                id: checked.value,
+                title: title,
+                price: Number(checked.getAttribute('data-price') || 0),
+                base_price: Number(checked.getAttribute('data-base') || 0),
+            };
+        }
+    </script>
 
     <script>
         app.controller('productDetail', function ($rootScope, $scope, cartItemSync, $interval) {
@@ -307,15 +462,32 @@
                     var currentVal = parseInt(qty);
                 }
 
+                const hasVariantInputs = document.querySelectorAll('.variant-radio').length > 0;
+                const selectedVariant = hasVariantInputs ? getSelectedVariant() : null;
+
+                if (hasVariantInputs && !selectedVariant) {
+                    toastr.error('Vui lòng chọn phân loại trước khi thêm giỏ hàng.');
+                    return;
+                }
+
+                const payload = { qty: currentVal };
+
+                // Nếu có phân loại, đính kèm thông tin type
+                if (selectedVariant) {
+                    payload.type_id = selectedVariant.id;
+                    payload.type_title = selectedVariant.title;
+                    payload.type_price = selectedVariant.price;
+                    payload.type_base_price = selectedVariant.base_price;
+                }
+
+
                 jQuery.ajax({
                     type: 'POST',
                     url: url,
                     headers: {
                         'X-CSRF-TOKEN': CSRF_TOKEN
                     },
-                    data: {
-                        'qty': currentVal
-                    },
+                    data: payload,
                     success: function (response) {
                         if (response.success) {
                             $interval.cancel($rootScope.promise);
@@ -488,5 +660,46 @@
         })();
     </script>
 
+    <script>
+        (function(){
+            const radios = document.querySelectorAll('.variant-radio');
+            if(!radios.length) return;
+
+            const priceEl = document.getElementById('mainPriceValue');
+            const baseEl  = document.getElementById('mainBaseValue');
+
+            function formatVN(n){ return (n||0).toLocaleString('vi-VN'); }
+
+            function apply(price, base){
+                if(+price > 0){
+                    priceEl.textContent = `${formatVN(+price)}đ`;
+                    if(+base > +price){
+                        baseEl.style.display = '';
+                        baseEl.textContent = `${formatVN(+base)}đ`;
+                    }else{
+                        baseEl.style.display = 'none';
+                        baseEl.textContent = '';
+                    }
+                }else{
+                    priceEl.textContent = 'Liên hệ';
+                    baseEl.style.display = 'none';
+                    baseEl.textContent = '';
+                }
+                console.log(price)
+            }
+
+            // khởi tạo theo radio đang checked
+            const init = document.querySelector('.variant-radio:checked');
+            console.log(init.dataset.price)
+            if(init){ apply(init.dataset.price, init.dataset.base); }
+
+            // lắng nghe thay đổi
+            radios.forEach(r => {
+                r.addEventListener('change', () => {
+                    apply(r.dataset.price, r.dataset.base);
+                });
+            });
+        })();
+    </script>
 
 @endpush

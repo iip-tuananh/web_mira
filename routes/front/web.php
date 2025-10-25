@@ -2,6 +2,7 @@
 Route::group(['namespace' => 'Front'], function () {
     Route::get('/','FrontController@homePage')->name('front.home-page');
     Route::get('/san-pham/{slug?}','FrontController@getProductList')->name('front.getProductList');
+    Route::get('/special/{slug?}','FrontController@getProductSpecial')->name('front.getProductSpecial');
     Route::get('/chi-tiet-san-pham/{slug?}','FrontController@getProductDetail')->name('front.getProductDetail');
 
 
@@ -13,6 +14,7 @@ Route::group(['namespace' => 'Front'], function () {
 
     Route::get('/lien-he','FrontController@contact')->name('front.contact');
     Route::post('/postContact','FrontController@postContact')->name('front.submitContact');
+    Route::post('/postContactFooter','FrontController@postContactFooter')->name('front.postContactFooter');
 
     Route::get('/tim-kiem','FrontController@searchProduct')->name('front.searchProduct');
 

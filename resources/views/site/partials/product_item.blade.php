@@ -40,9 +40,26 @@
 
 </style>
 <div class="th-product product-grid">
-    <div class="product-img"><img src="{{ $product->image->path ?? '' }}"
-                                  alt="Product Image">
-        @if($product->base_price > 0)
+    @php
+        $types = $product->types ?? collect();
+        $hasTypes = $types->count() > 0;
+
+        if ($hasTypes) {
+            $first = $types->first();
+            $initPrice = (int) $first->price;
+            $initBase  = (int) $first->base_price;
+        } else {
+            $initPrice = (int) $product->price;
+            $initBase  = (int) $product->base_price;
+        }
+
+        $save = ($initBase > $initPrice && $initPrice > 0) ? max(0, round((1 - ($initPrice/$initBase))*100)) : 0;
+
+    @endphp
+
+    <div class="product-img">
+        <img src="{{ $product->image->path ?? '' }}" alt="Product Image">
+        @if($initBase > $initPrice)
             <span class="product-tag">Sale</span>
         @endif
         <div class="actions">
@@ -55,16 +72,21 @@
         <h3 class="product-title product-title-item"><a
                 href="{{ route('front.getProductDetail', $product->slug) }}">{{ $product->name }}</a></h3>
 
-        @if($product->price > 0)
+            @if($initPrice > 0)
             <span class="price">
-            {{ formatCurrency($product->price) }}đ
-            @if($product->base_price > 0)
-                    <del> {{ formatCurrency($product->base_price) }}đ</del>
+            {{ formatCurrency($initPrice) }}đ
+                @if($initBase > $initPrice)
+                    <del> {{ formatCurrency($initBase) }}đ</del>
                 @endif
-        </span>
-        @else
-            <span class="price">Liên hệ</span>
-        @endif
+             </span>
+            @else
+                <span class="price">Liên hệ</span>
+            @endif
+
+
+
+
+
 
 
         <div class="woocommerce-product-rating">

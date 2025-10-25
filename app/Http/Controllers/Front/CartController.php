@@ -44,18 +44,48 @@ class CartController extends Controller
 
     public function addItem(Request $request, $productId)
     {
-        $product = Product::query()->find($productId);
+        $product = Product::query()->with('types')->find($productId);
         $cartList  = \Cart::session('cartList');
 
+        $uniId = $product->id;
+        $type = null;
+
+        if($request->type_id) {
+            $uniId .= '-'.$request->type_id;
+            $type = [
+                'type_id' => $request->type_id,
+                'type_title' => $request->type_title,
+                'type_price' => $request->type_price,
+                'type_base_price' => $request->type_base_price,
+            ];
+
+            $chosenPrice     = (int) ($request->type_price ?? 0);
+        } else {
+            $chosenPrice     = (int) ($product->price ?? 0);
+            $first = $product->types->first();
+            if($first) {
+                $uniId .= '-'.$first->id;
+                $type = [
+                    'type_id' => $first->id,
+                    'type_title' => $first->title,
+                    'type_price' => $first->price,
+                    'type_base_price' => $first->base_price,
+                ];
+
+                $chosenPrice     = (int) ($first->price ?? 0);
+            }
+        }
+
         $cartList->add([
-            'id' => $product->id,
+            'id' => $uniId,
             'name' => $product->name,
-            'price' => $product->price ?? 0,
+            'price' => $chosenPrice ,
             'quantity' => $request->qty ? (int)$request->qty : 1,
             'attributes' => [
                 'image' => $product->image->path ?? '',
                 'slug' => $product->slug,
                 'base_price' => $product->base_price,
+                'type' => $type,
             ]
         ]);
 
@@ -179,13 +209,16 @@ class CartController extends Controller
             ]);
 
             foreach ($request->items as $item) {
+
+                $typeTitle = @$item['attributes']['type']['type_title'];
+
                 $detail = new OrderDetail();
                 $detail->order_id = $order->id;
                 $product_id = is_numeric($item['id']) ? $item['id'] : Product::query()->where('slug', $item['attributes']['slug'])->first()->id;
                 $detail->product_id = $product_id;
                 $detail->qty = $item['quantity'];
                 $detail->price = $item['price'];
-                $detail->type = $item['attributes']['attribute_name'] ?? null;
+                $detail->type = $typeTitle ?? null;
                 $detail->save();
             }
 

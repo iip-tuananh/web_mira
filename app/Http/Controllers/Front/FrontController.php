@@ -84,10 +84,23 @@ class FrontController extends Controller
                 ->get());
         });
 
-        $categoriesSpecial = CategorySpecial::with([
-            'products' => function ($q) { $q->where('status', 1); },
-            'products.image', 'products.image'
-        ])->where('show_home_page', 1)->orderBy('order_number')->get();
+        $categoriesSpecial = CategorySpecial::query()
+            ->where('show_home_page', 1)
+            ->orderBy('order_number')
+            ->with([
+                'image',
+                'products' => function ($q) {
+                    $q->where('status', 1)
+                        ->orderByDesc('created_at')
+                        ->with('image');
+                },
+            ])->get();
+
+        $categoriesSpecial->each(function ($cat) {
+            $cat->setRelation('products', $cat->products->take(6));
+        });
+
+
         $messages = Partner::with(['image'])->latest()->get();
         $feedbacks = Review::query()->with(['image'])->latest()->get();
         $blogs = Post::query()->with(['category', 'image'])->where('status', 1)
@@ -143,8 +156,38 @@ class FrontController extends Controller
         return view('site.product_list', compact('products', 'banner', 'category', 'allCates', 'blogs'));
     }
 
+    public function getProductSpecial(Request $request, $slug = null) {
+        $sortMap = [
+            'name_asc'   => ['name', 'asc'],
+            'name_desc'  => ['name', 'desc'],
+            'price_asc'  => ['price', 'asc'],
+            'price_desc' => ['price', 'desc'],
+            'date_asc'   => ['created_at', 'asc'],
+            'date_desc'  => ['created_at', 'desc'],
+        ];
+        if (isset($sortMap[$request->get('sort')])) {
+            list($sortColumn, $sortDirection) = $sortMap[$request->get('sort')];
+        } else {
+            $sortColumn = 'products.id';
+            $sortDirection = 'desc';
+        }
+
+        $category = CategorySpecial::query()->with(['image'])->where('slug', $slug)->first();
+
+        $products = Product::query()->with(['category', 'image'])->where('status', 1)
+            ->join('product_category_special', 'products.id', '=', 'product_category_special.product_id')
+            ->where('product_category_special.category_special_id', $category->id)
+            ->orderBy($sortColumn, $sortDirection)
+            ->select('products.*')
+            ->paginate(20)->appends($request->only('sort'));
+
+        return view('site.product_special', compact('products' , 'category'));
+    }
+
     public function getProductDetail(Request $request, $slug = null) {
-        $product = Product::query()->with(['category.banner', 'image', 'galleries.image'])->where('slug', $slug)->first();
+        $product = Product::query()->with(['category.banner', 'image', 'galleries.image', 'types'])
+            ->where('slug', $slug)->first();
+
         $productsLq = Product::query()->with(['image'])
             ->where('status', 1)
             ->whereNotIn('id', [$product->id])->latest()->take(5)->get();
@@ -284,6 +327,37 @@ class FrontController extends Controller
         $contact->save();
 
         return $this->responseSuccess('Gửi yêu cầu thành công!');
+    }
+
+    public function postContactFooter(Request $request)
+    {
+        $rule  =  [
+            'email'  => 'required|email|max:255',
+        ];
+
+        $validate = Validator::make(
+            $request->all(),
+            $rule,
+            [
+                'email.required' => 'Vui lòng nhập email',
+                'email.email'    => 'Email không đúng định dạng',
+                'email.max'      => 'Email không hợp lệ',
+
+            ]
+        );
+
+        if ($validate->fails()) {
+            return $this->responseErrors('Gửi yêu cầu thất bại!', $validate->errors());
+        }
+
+        $contact = new Contact();
+        $contact->user_name = $request->name;
+        $contact->phone_number = $request->phone ?? null;
+        $contact->content = 'Khách hàng đăng ký email';
+        $contact->email = $request->email ?? null;
+        $contact->save();
+
+        return $this->responseSuccess('Đăng ký thành công!');
     }
 
 
