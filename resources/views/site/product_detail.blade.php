@@ -347,15 +347,6 @@
                         @endif
 
 
-
-
-
-
-
-
-
-
-
                         <div class="actions">
                             <div class="quantity"><input type="number" class="qty-input" step="1" min="1" max="100"
                                                          name="quantity" value="1" title="Qty">

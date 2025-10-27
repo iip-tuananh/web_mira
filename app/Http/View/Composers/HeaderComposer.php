@@ -23,7 +23,7 @@ class HeaderComposer
         $totalPriceCart = \Cart::session('cartList')->getTotal();
 
         // danh mục sản phẩm
-        $categories = Category::query()->with('childs')
+        $categories = Category::query()->with('childs')->where('parent_id', 0)
             ->orderBy('sort_order')->get();
 
         // danh mục blog
