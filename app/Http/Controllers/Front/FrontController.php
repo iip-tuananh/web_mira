@@ -23,6 +23,7 @@ use App\Model\Admin\Moving;
 use App\Model\Admin\Policy;
 use App\Model\Admin\PolivicyDetail;
 use App\Model\Admin\Product;
+use App\Model\Admin\ProductCategorySpecial;
 use App\Model\Admin\Project;
 use App\Model\Admin\Room;
 use App\Model\Admin\ServiceSpa;
@@ -112,22 +113,18 @@ class FrontController extends Controller
     }
 
     public function getProductList(Request $request, $slug = null) {
-        $sortMap = [
-            'name_asc'   => ['name', 'asc'],
-            'name_desc'  => ['name', 'desc'],
-            'price_asc'  => ['price', 'asc'],
-            'price_desc' => ['price', 'desc'],
-            'date_asc'   => ['created_at', 'asc'],
-            'date_desc'  => ['created_at', 'desc'],
-        ];
-        if (isset($sortMap[$request->get('sort')])) {
-            list($sortColumn, $sortDirection) = $sortMap[$request->get('sort')];
-        } else {
-            $sortColumn = 'id';
-            $sortDirection = 'desc';
-        }
-
+        $sort = $request->get('sort', 'id_desc');
         $category = null;
+
+        $variantAgg = DB::table('product_types')
+            ->select([
+                'product_id',
+                DB::raw('COUNT(*) as type_count'),
+                DB::raw('MIN(price) as min_price'),
+                DB::raw('MAX(price) as max_price'),
+            ])
+            ->groupBy('product_id');
+
         if($slug) {
             $category = Category::query()->with(['banner', 'childs'])
                 ->where('slug', $slug)->first();
@@ -137,15 +134,61 @@ class FrontController extends Controller
                 $cateIds = $category->getChilds()->pluck('id')->toArray();
             }
 
-            $products = Product::query()->with(['category', 'image'])->where('status', 1)
-                ->whereIn('cate_id', $cateIds)
-                ->orderBy($sortColumn, $sortDirection)
-                ->paginate(20)->appends($request->only('sort'));
+            $products = Product::query()
+                ->with(['category', 'image'])
+                ->leftJoinSub($variantAgg, 'pt', function ($join) {
+                    $join->on('pt.product_id', '=', 'products.id');
+                })
+                ->where('products.status', 1)
+                ->whereIn('products.cate_id', $cateIds)
+                ->select('products.*')
+                ->selectRaw('CASE WHEN COALESCE(pt.type_count,0) > 0 THEN pt.min_price ELSE products.price END AS price_min')
+                ->selectRaw('CASE WHEN COALESCE(pt.type_count,0) > 0 THEN pt.max_price ELSE products.price END AS price_max');
+
         } else {
-            $products = Product::query()->with(['category', 'image'])->where('status', 1)
-                ->orderBy($sortColumn, $sortDirection)
-                ->paginate(20)->appends($request->only('sort'));
+            $products = Product::query()
+                ->with(['category', 'image'])
+                ->leftJoinSub($variantAgg, 'pt', function ($join) {
+                    $join->on('pt.product_id', '=', 'products.id');
+                })
+                ->where('products.status', 1)
+                ->select('products.*')
+                ->selectRaw('CASE WHEN COALESCE(pt.type_count,0) > 0 THEN pt.min_price ELSE products.price END AS price_min')
+                ->selectRaw('CASE WHEN COALESCE(pt.type_count,0) > 0 THEN pt.max_price ELSE products.price END AS price_max');
         }
+
+        switch ($sort) {
+            case 'price_asc':
+                $products->orderByRaw('COALESCE(price_min, 999999999) ASC')
+                    ->orderByRaw('COALESCE(price_max, 999999999) ASC')
+                    ->orderBy('products.id', 'desc');
+                break;
+
+            case 'price_desc':
+                $products->orderByRaw('COALESCE(price_max, -1) DESC')
+                    ->orderByRaw('COALESCE(price_min, -1) DESC')
+                    ->orderBy('products.id', 'desc');
+                break;
+
+            case 'name_asc':
+                $products->orderBy('products.name', 'asc');
+                break;
+            case 'name_desc':
+                $products->orderBy('products.name', 'desc');
+                break;
+
+            case 'date_asc':
+                $products->orderBy('products.created_at', 'asc');
+                break;
+            case 'date_desc':
+                $products->orderBy('products.created_at', 'desc');
+                break;
+
+            default:
+                $products->orderBy('products.id', 'desc');
+                break;
+        }
+        $products = $products->paginate(20)->appends($request->only('sort'));
 
         $allCates = Category::query()->orderBy('sort_order', 'asc')->get();
         $banner = Banner::query()->with('image')->where('type',1)->first();
@@ -157,29 +200,60 @@ class FrontController extends Controller
     }
 
     public function getProductSpecial(Request $request, $slug = null) {
-        $sortMap = [
-            'name_asc'   => ['name', 'asc'],
-            'name_desc'  => ['name', 'desc'],
-            'price_asc'  => ['price', 'asc'],
-            'price_desc' => ['price', 'desc'],
-            'date_asc'   => ['created_at', 'asc'],
-            'date_desc'  => ['created_at', 'desc'],
-        ];
-        if (isset($sortMap[$request->get('sort')])) {
-            list($sortColumn, $sortDirection) = $sortMap[$request->get('sort')];
-        } else {
-            $sortColumn = 'products.id';
-            $sortDirection = 'desc';
-        }
-
         $category = CategorySpecial::query()->with(['image'])->where('slug', $slug)->first();
-
-        $products = Product::query()->with(['category', 'image'])->where('status', 1)
-            ->join('product_category_special', 'products.id', '=', 'product_category_special.product_id')
-            ->where('product_category_special.category_special_id', $category->id)
-            ->orderBy($sortColumn, $sortDirection)
+        $productIds = ProductCategorySpecial::query()->where('category_special_id', $category->id)->pluck('product_id')->toArray();
+        $variantAgg = DB::table('product_types')
+            ->select([
+                'product_id',
+                DB::raw('COUNT(*) as type_count'),
+                DB::raw('MIN(price) as min_price'),
+                DB::raw('MAX(price) as max_price'),
+            ])
+            ->groupBy('product_id');
+        $products = Product::query()
+            ->with(['category', 'image'])
+            ->leftJoinSub($variantAgg, 'pt', function ($join) {
+                $join->on('pt.product_id', '=', 'products.id');
+            })
+            ->where('products.status', 1)
+            ->whereIn('products.id', $productIds)
             ->select('products.*')
-            ->paginate(20)->appends($request->only('sort'));
+            ->selectRaw('CASE WHEN COALESCE(pt.type_count,0) > 0 THEN pt.min_price ELSE products.price END AS price_min')
+            ->selectRaw('CASE WHEN COALESCE(pt.type_count,0) > 0 THEN pt.max_price ELSE products.price END AS price_max');
+
+        $sort = $request->get('sort', 'id_desc');
+        switch ($sort) {
+            case 'price_asc':
+                $products->orderByRaw('COALESCE(price_min, 999999999) ASC')
+                    ->orderByRaw('COALESCE(price_max, 999999999) ASC')
+                    ->orderBy('products.id', 'desc');
+                break;
+
+            case 'price_desc':
+                $products->orderByRaw('COALESCE(price_max, -1) DESC')
+                    ->orderByRaw('COALESCE(price_min, -1) DESC')
+                    ->orderBy('products.id', 'desc');
+                break;
+
+            case 'name_asc':
+                $products->orderBy('products.name', 'asc');
+                break;
+            case 'name_desc':
+                $products->orderBy('products.name', 'desc');
+                break;
+
+            case 'date_asc':
+                $products->orderBy('products.created_at', 'asc');
+                break;
+            case 'date_desc':
+                $products->orderBy('products.created_at', 'desc');
+                break;
+
+            default:
+                $products->orderBy('products.id', 'desc');
+                break;
+        }
+        $products = $products->paginate(20)->appends($request->only('sort'));
 
         return view('site.product_special', compact('products' , 'category'));
     }

@@ -40,44 +40,86 @@
 
 </style>
 <div class="th-product product-grid">
+{{--    @php--}}
+{{--        $types = $product->types ?? collect();--}}
+{{--        $hasTypes = $types->count() > 0;--}}
+
+{{--        if ($hasTypes) {--}}
+{{--            $first = $types->first();--}}
+{{--            $initPrice = (int) $first->price;--}}
+{{--            $initBase  = (int) $first->base_price;--}}
+{{--        } else {--}}
+{{--            $initPrice = (int) $product->price;--}}
+{{--            $initBase  = (int) $product->base_price;--}}
+{{--        }--}}
+
+{{--        $save = ($initBase > $initPrice && $initPrice > 0) ? max(0, round((1 - ($initPrice/$initBase))*100)) : 0;--}}
+
+{{--    @endphp--}}
     @php
-        $types = $product->types ?? collect();
-        $hasTypes = $types->count() > 0;
+        // Lấy danh sách type (nếu không có thì mảng rỗng)
+        $types = collect(isset($product->types) ? $product->types : []);
 
-        if ($hasTypes) {
-            $first = $types->first();
-            $initPrice = (int) $first->price;
-            $initBase  = (int) $first->base_price;
+        // Map về cặp giá hợp lệ rồi filter bỏ các type không có price
+        $rows = $types->map(function ($t) {
+            $p = (int) (isset($t->price) ? $t->price : 0);
+            $b = (int) (isset($t->base_price) ? $t->base_price : 0);
+
+            return [
+                'p' => ($p > 0) ? $p : null,
+                'b' => ($b > 0 && $b > $p) ? $b : null, // chỉ giữ base_price khi > price
+            ];
+        })->filter(function ($r) {
+            return !is_null($r['p']);
+        })->values();
+
+        if ($rows->count() > 0) {
+            $minPrice = $rows->pluck('p')->min();
+            $maxPrice = $rows->pluck('p')->max();
+
+            // base_price min–max (nếu có)
+            $baseList = $rows->pluck('b')->filter(function ($v) {
+                return !is_null($v);
+            });
+            $minBase  = $baseList->count() ? $baseList->min() : null;
+            $maxBase  = $baseList->count() ? $baseList->max() : null;
         } else {
-            $initPrice = (int) $product->price;
-            $initBase  = (int) $product->base_price;
+            // Không có phân loại hợp lệ → dùng giá sản phẩm
+            $minPrice = (int) (isset($product->price) ? $product->price : 0);
+            $maxPrice = $minPrice;
+
+            $baseProd = (int) (isset($product->base_price) ? $product->base_price : 0);
+            $minBase  = ($baseProd > $minPrice) ? $baseProd : null;
+            $maxBase  = $minBase;
         }
-
-        $save = ($initBase > $initPrice && $initPrice > 0) ? max(0, round((1 - ($initPrice/$initBase))*100)) : 0;
-
     @endphp
-
     <div class="product-img">
         <img src="{{ $product->image->path ?? '' }}" alt="Product Image">
-        @if($initBase > $initPrice)
-            <span class="product-tag">Sale</span>
-        @endif
-        <div class="actions">
-            <a href="javascript:void(0)" class="icon-btn" ng-click="addToCart({{ $product->id }}, 1)"><i
-                    class="far fa-cart-plus"></i></a>
-        </div>
+{{--        @if($initBase > $initPrice)--}}
+{{--            <span class="product-tag">Sale</span>--}}
+{{--        @endif--}}
+{{--        <div class="actions">--}}
+{{--            <a href="javascript:void(0)" class="icon-btn" ng-click="addToCart({{ $product->id }}, 1)"><i--}}
+{{--                    class="far fa-cart-plus"></i></a>--}}
+{{--        </div>--}}
     </div>
     <div class="product-content"><a href="{{ route('front.getProductDetail', $product->slug) }}"
                                     class="product-category">{{ $product->category->name ?? '' }}</a>
         <h3 class="product-title product-title-item"><a
                 href="{{ route('front.getProductDetail', $product->slug) }}">{{ $product->name }}</a></h3>
 
-            @if($initPrice > 0)
+            @if($minPrice > 0)
             <span class="price">
-            {{ formatCurrency($initPrice) }}đ
-                @if($initBase > $initPrice)
-                    <del> {{ formatCurrency($initBase) }}đ</del>
+                    @if($minPrice !== $maxPrice)
+                    {{ formatCurrency($minPrice) }} - {{ formatCurrency($maxPrice) }}đ
+                @else
+                    {{ formatCurrency($minPrice) }}đ
                 @endif
+
+
+{{--                @if($initBase > $initPrice)--}}
+{{--                    <del> {{ formatCurrency($initBase) }}đ</del>--}}
+{{--                @endif--}}
              </span>
             @else
                 <span class="price">Liên hệ</span>
