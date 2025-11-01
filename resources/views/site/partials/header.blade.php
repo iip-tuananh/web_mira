@@ -599,7 +599,6 @@
                                         </a>
                                 </li>
                                 <li style="border: 0"><a class="mn-link" href="{{ route('front.contact') }}" ><span>Liên hệ</span></a></li>
-                                <li style="border: 0"><a class="mn-link" href="{{ route('cart.index') }}" ><span>Giỏ hàng</span></a></li>
                             </ul>
                         </div>
 
