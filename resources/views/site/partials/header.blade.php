@@ -161,7 +161,7 @@
 
         <style>
             /* ===== MOBILE ONLY ===== */
-            @media (max-width: 767.98px){
+            @media (max-width: 991.98px){
                 /* Khung hàng trên làm khung định vị */
                 .header-top-wrap{
                     position: relative;
@@ -201,7 +201,7 @@
                 /* Nút search ở phải */
                 .mobile-search-toggle{
                     position: absolute;
-                    right: 12px;
+                    right: -3px;
                     top: 50%;
                     transform: translateY(-50%);
                     z-index: 5;
@@ -213,6 +213,25 @@
                     box-shadow: 0 1px 2px rgba(0,0,0,.06) inset;
                 }
                 .mobile-search-toggle i{ font-size: 16px; }
+
+                .mobile-cart-toggle{
+                    position: absolute;
+                    right: 42px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    z-index: 5;
+                    background: #f9d977;
+                    border: 0;
+                    width: 38px; height: 38px;
+                    border-radius: 10px;
+                    display: inline-flex; align-items: center; justify-content: center;
+                    box-shadow: 0 1px 2px rgba(0,0,0,.06) inset;
+                }
+
+                .badge-mobi {
+                    top: -5px;
+                    right: -5px;
+                }
 
                 /* Ẩn form search mặc định trên mobile và đặt hiệu ứng trượt */
                 .hero-search{
@@ -241,7 +260,7 @@
 
         <style>
             /* ===== Mobile only ===== */
-            @media (max-width: 767.98px){
+            @media (max-width: 991.98px){
                 .header-top-wrap{ position: relative; z-index: 2; }
 
                 /* Panel mobile mặc định ẩn, không chiếm chỗ */
@@ -313,6 +332,14 @@
                         <button type="button" class="mobile-search-toggle" aria-label="Open search">
                             <i class="far fa-search"></i>
                         </button>
+
+
+                       <a href="{{ route('cart.index') }}">
+                           <button type="button" class="mobile-cart-toggle" aria-label="Open cart">
+                               <span class="badge badge-mobi" ng-cloak><% cart.count %></span>
+                               <i class="fa-regular fa-cart-shopping"></i>
+                           </button>
+                       </a>
                     </div>
 
 
@@ -546,7 +573,7 @@
                             <ul class="mn-list">
                                 @foreach($categories as $cate)
                                     @if($cate->childs()->count() > 0)
-                                        <li class="has-sub" data-target="#mn-cate-{{ $cate->id }}">
+                                        <li class="has-sub" data-target="#mn-cate-{{ $cate->id }}" style="border: 0">
                                             <a class="mn-link to-sub"
                                                data-target="#mn-cate-{{ $cate->id }}">
                                                 <span>{{ $cate->name }}</span>
@@ -554,7 +581,7 @@
                                             </a>
                                         </li>
                                     @else
-                                        <li>
+                                        <li style="border: 0">
                                             <a class="mn-link" href="{{ route('front.getProductList', $cate->slug) }}">
                                                 <span>{{ $cate->name }}</span>
                                             </a>
@@ -562,8 +589,8 @@
                                     @endif
                                 @endforeach
 
-                                <li><a href="{{ route('front.abouts') }}">Về chúng tôi</a></li>
-                                <li class="has-sub"  data-target="#mn-blog">
+                                <li style="border-top: 1px solid #adacac; border-bottom: 0" ><a href="{{ route('front.abouts') }}" >Về chúng tôi</a></li>
+                                <li class="has-sub"  data-target="#mn-blog" style="border: 0">
 
                                         <a class="mn-link to-sub"
                                            data-target="#mn-blog">
@@ -571,8 +598,8 @@
                                             <i class="fa-regular fa-chevron-right"></i>
                                         </a>
                                 </li>
-                                <li><a class="mn-link" href="{{ route('front.contact') }}"><span>Liên hệ</span></a></li>
-                                <li><a class="mn-link" href="{{ route('cart.index') }}"><span>Giỏ hàng</span></a></li>
+                                <li style="border: 0"><a class="mn-link" href="{{ route('front.contact') }}" ><span>Liên hệ</span></a></li>
+                                <li style="border: 0"><a class="mn-link" href="{{ route('cart.index') }}" ><span>Giỏ hàng</span></a></li>
                             </ul>
                         </div>
 
