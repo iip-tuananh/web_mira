@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en">
+<html lang="en">
 
 <head>
     @include('site.partials.head')
     @yield('css')
+
+    <meta name="facebook-domain-verification" content="fun3wubog7qfhgyg2n92grhi45zim3" />
 
     <!-- Meta Pixel Code -->
     <script>
@@ -18,6 +20,9 @@
         fbq('init', '2282309942215854');
         fbq('track', 'PageView');
     </script>
+    <noscript><img height="1" width="1" style="display:none"
+               src="https://www.facebook.com/tr?id=2282309942215854&ev=PageView&noscript=1"
+    /></noscript>
 
     <!-- End Meta Pixel Code -->
 
@@ -34,10 +39,6 @@
 </head>
 
 <body ng-app="App">
-
-<noscript><img height="1" width="1" style="display:none"
-               src="https://www.facebook.com/tr?id=2282309942215854&ev=PageView&noscript=1"
-    /></noscript>
 
 {{--    <div class="preloader">--}}
 {{--        <div class="preloader-inner">--}}
