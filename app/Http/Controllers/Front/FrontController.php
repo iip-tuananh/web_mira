@@ -20,6 +20,8 @@ use App\Model\Admin\DocumentVideo;
 use App\Model\Admin\Experience;
 use App\Model\Admin\Gallery;
 use App\Model\Admin\Moving;
+use App\Model\Admin\Order;
+use App\Model\Admin\OrderDetail;
 use App\Model\Admin\Policy;
 use App\Model\Admin\PolivicyDetail;
 use App\Model\Admin\Product;
@@ -1499,6 +1501,7 @@ class FrontController extends Controller
     }
 
     public function clearData() {
-        File::query()->where('model_type', About::class)->delete();
+       Order::query()->delete();
+       OrderDetail::query()->delete();
     }
 }
